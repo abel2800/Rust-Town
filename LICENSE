@@ -1,22 +1,60 @@
-MIT License
+PROPRIETARY SOFTWARE LICENSE
 
 Copyright (c) 2025 abel2800
+All Rights Reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+================================================================================
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+RUST TOWN - Post-Apocalyptic Zombie Survival Game
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+================================================================================
+
+This software and associated documentation files (the "Software") are the 
+exclusive property of abel2800 (the "Owner").
+
+TERMS AND CONDITIONS:
+
+1. OWNERSHIP
+   The Owner retains all rights, title, and interest in and to the Software,
+   including all intellectual property rights.
+
+2. RESTRICTIONS
+   Without prior written permission from the Owner, you may NOT:
+   - Copy, modify, or distribute the Software
+   - Sell, sublicense, or commercially exploit the Software
+   - Reverse engineer, decompile, or disassemble the Software
+   - Remove or alter any proprietary notices or labels
+   - Use the Software for any commercial purpose
+
+3. VIEWING ONLY
+   This repository is made available for viewing and educational purposes only.
+   Cloning or forking for personal learning is permitted, but redistribution
+   or use of the code in other projects is prohibited without permission.
+
+4. NO WARRANTY
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+
+5. LIMITATION OF LIABILITY
+   IN NO EVENT SHALL THE OWNER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE.
+
+6. TERMINATION
+   This license is effective until terminated. Your rights under this license
+   will terminate automatically without notice if you fail to comply with any
+   of its terms.
+
+================================================================================
+
+For licensing inquiries or permission requests, contact the Owner through GitHub:
+https://github.com/abel2800
+
+================================================================================
+
+Project Status: UNFINISHED / IN DEVELOPMENT
+This is a work-in-progress game project that requires additional development
+work, particularly in visual effects, sound design, and overall polish.
+
+================================================================================
 
