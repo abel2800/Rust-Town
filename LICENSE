@@ -1,60 +1,45 @@
+Copyright (c) 2024 abel2800. All Rights Reserved.
+
 PROPRIETARY SOFTWARE LICENSE
 
-Copyright (c) 2025 abel2800
-All Rights Reserved.
-
-================================================================================
-
-RUST TOWN - Post-Apocalyptic Zombie Survival Game
-
-================================================================================
-
 This software and associated documentation files (the "Software") are the 
-exclusive property of abel2800 (the "Owner").
+exclusive property of abel2800. 
 
-TERMS AND CONDITIONS:
+RESTRICTIONS:
 
-1. OWNERSHIP
-   The Owner retains all rights, title, and interest in and to the Software,
-   including all intellectual property rights.
+1. You may NOT copy, modify, merge, publish, distribute, sublicense, and/or 
+   sell copies of the Software without explicit written permission from the 
+   copyright holder.
 
-2. RESTRICTIONS
-   Without prior written permission from the Owner, you may NOT:
-   - Copy, modify, or distribute the Software
-   - Sell, sublicense, or commercially exploit the Software
-   - Reverse engineer, decompile, or disassemble the Software
-   - Remove or alter any proprietary notices or labels
-   - Use the Software for any commercial purpose
+2. You may NOT use the Software for commercial purposes without a separate 
+   commercial license agreement.
 
-3. VIEWING ONLY
-   This repository is made available for viewing and educational purposes only.
-   Cloning or forking for personal learning is permitted, but redistribution
-   or use of the code in other projects is prohibited without permission.
+3. You may NOT reverse engineer, decompile, or disassemble the Software.
 
-4. NO WARRANTY
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+4. You may NOT remove or alter any proprietary notices, labels, or marks on 
+   the Software.
 
-5. LIMITATION OF LIABILITY
-   IN NO EVENT SHALL THE OWNER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-   LIABILITY ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE.
+PERMISSIONS:
 
-6. TERMINATION
-   This license is effective until terminated. Your rights under this license
-   will terminate automatically without notice if you fail to comply with any
-   of its terms.
+1. You MAY view the source code for educational purposes only.
 
-================================================================================
+2. You MAY fork the repository for personal, non-commercial experimentation,
+   provided you do not distribute your modifications.
 
-For licensing inquiries or permission requests, contact the Owner through GitHub:
+DISCLAIMER:
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+For licensing inquiries, contact the author through GitHub:
 https://github.com/abel2800
 
-================================================================================
-
-Project Status: UNFINISHED / IN DEVELOPMENT
-This is a work-in-progress game project that requires additional development
-work, particularly in visual effects, sound design, and overall polish.
-
-================================================================================
+---
+Rust Town - Post-Apocalyptic Zombie Survival Shooter
+© 2024 abel2800
 

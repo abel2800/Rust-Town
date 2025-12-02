@@ -1,44 +1,55 @@
-# 🧟 RUST TOWN
+# 🏚️ Rust Town
 
-**A Post-Apocalyptic Zombie Survival Shooter**
+A post-apocalyptic zombie survival shooter game built in Unity. Experience intense wave-based combat in a desolate, sun-scorched abandoned town.
 
 ![Unity](https://img.shields.io/badge/Unity-2022.3+-black?logo=unity)
-![Status](https://img.shields.io/badge/Status-In%20Development-yellow)
+![Status](https://img.shields.io/badge/Status-In%20Development-orange)
 ![License](https://img.shields.io/badge/License-Proprietary-red)
 
 ---
 
-## 🎮 About The Game
+## 🎮 Game Overview
 
-**Rust Town** is a first-person wave-based zombie survival shooter set in a desolate, post-apocalyptic small town. Fight endless waves of zombies in a haunting "Sundown Desolation" environment featuring abandoned buildings, a decrepit gas station, burning barrels, and an eerie perpetual sunset atmosphere.
+**Rust Town** is a first-person wave-based zombie shooter set in a hauntingly beautiful post-apocalyptic environment called "Sundown Desolation". Fight endless waves of zombies in an abandoned small town frozen in perpetual sunset.
+
+### ✨ Current Features
+
+- 🧟 **Wave-Based Zombie Combat** - Survive increasingly difficult waves of zombie enemies
+- 🌅 **"Sundown Desolation" Environment** - Atmospheric post-apocalyptic town with perpetual sunset lighting
+- 🔫 **FPS Shooting Mechanics** - Raycast-based combat with recoil, shell ejection, and muzzle flash
+- 🏘️ **Procedurally Generated Town** - Detailed buildings, roads, gas station, residential areas
+- 🔥 **Dynamic Atmosphere** - Burning barrels, fog, dust particles, flickering lights
+- 🎯 **Headshot System** - Bonus damage for precision shots
 
 ---
 
-## 🌅 Game Features
+## 🌆 Environment: "Sundown Desolation"
 
-### Environment - "Sundown Desolation"
-- **Post-Apocalyptic Town** - Abandoned shops, houses, gas station
-- **Perpetual Sunset** - Dramatic orange/red sky with long shadows
-- **Atmospheric Effects** - Fog, dust particles, floating embers
-- **Detailed World** - Cracked roads, potholes, debris, overgrown vegetation
-- **Dynamic Lighting** - Flickering fire lights, burning barrels
+The game features a procedurally generated post-apocalyptic small town:
 
-### Gameplay
-- **Wave-Based Survival** - Fight increasingly difficult waves of zombies
-- **FPS Combat** - Responsive first-person shooting mechanics
-- **Scoring System** - Points for kills, headshot bonuses, accuracy rewards
-- **Difficulty Scaling** - Enemies get stronger each wave
+### 🛣️ Main Street
+- Cracked asphalt roads with potholes and cracks
+- Faded yellow center lines and tire marks
+- Oil stains and road debris
+- Damaged curbs and concrete sidewalks
 
-### Zombies
-- **Animated Enemies** - Running, attacking, and death animations
-- **AI Behaviors** - Chase, attack, and evasion patterns
-- **Increasing Difficulty** - More zombies, faster, stronger each wave
+### 🏢 Buildings
+| Location | Description |
+|----------|-------------|
+| **Rusty's Diner** | Abandoned restaurant with boarded windows |
+| **General Store** | Looted shop with broken glass |
+| **Hardware Store** | Tools scattered, shelves empty |
+| **Pharmacy** | Medical supplies long gone |
+| **Gas Station** | Rusted pumps, oil puddles, canopy structure |
+| **Residential Houses** | Detailed homes with porches, damaged roofs, overgrown yards |
 
-### Weapons
-- **Realistic Gun** - Detailed pistol model with proper handling
-- **Muzzle Flash** - Light-based realistic shooting effects
-- **Shell Ejection** - Brass casings eject on each shot
-- **Recoil Animation** - Gun kicks back when firing
+### 🌫️ Atmosphere Effects
+- **Perpetual Sunset** - Orange/red sky casting long shadows
+- **Low-lying Fog** - Patches drifting across the streets
+- **Dust Particles** - Floating in the sunlight
+- **Burning Barrels** - Flickering firelight throughout town
+- **Embers** - Rising from fires
+- **Utility Poles** - With dangling, broken wires
 
 ---
 
@@ -46,107 +57,137 @@
 
 | Key | Action |
 |-----|--------|
-| **WASD** | Move |
-| **Mouse** | Look around |
-| **Left Click** | Shoot |
-| **Shift** | Sprint |
-| **Space** | Jump |
-| **ESC** | Pause |
+| `W A S D` | Move |
+| `Mouse` | Look Around |
+| `Left Click` | Shoot |
+| `Shift` | Sprint |
+| `Space` | Jump |
+| `ESC` | Pause |
 
 ---
 
-## 🔧 Technical Details
+## 🧟 Enemy System
 
-### Built With
-- **Engine:** Unity 2022.3+
-- **Language:** C#
-- **Render Pipeline:** Built-in Render Pipeline
+### Zombie AI Behaviors
+- **Seek** - Wanders when player not detected
+- **Chase** - Pursues player when in range
+- **Attack** - Melee damage when close
+- **Evade** - Random dodge movements
+- **Death** - Ragdoll fall animation with fade out
 
-### Project Structure
+### Wave Progression
+- Enemy count increases each wave
+- Zombie health and damage scale with difficulty
+- Wave completion bonus points
+
+---
+
+## 🔫 Combat System
+
+- **Raycast Shooting** - Instant hit detection
+- **Headshot Bonus** - 2x damage for head hits
+- **Gun Recoil** - Visual kickback animation
+- **Shell Ejection** - Brass casings fly out
+- **Muzzle Flash** - Realistic light-based flash
+- **Accuracy Tracking** - Stats and bonus rewards
+
+---
+
+## 🛠️ Project Structure
+
 ```
 Rust Town/
 ├── Assets/
-│   ├── Editor/           # Unity Editor tools
-│   ├── Models/           # 3D models (gun, zombies)
-│   ├── Resources/        # Runtime-loaded assets
-│   ├── Scenes/           # Game scenes
-│   └── Scripts/          # C# game code
-│       ├── Core/         # GameManager, UI, Input
-│       ├── Player/       # PlayerController, WeaponSystem
-│       ├── AI/           # EnemyAI
-│       ├── World/        # Map generation
-│       └── Rendering/    # Materials, effects
+│   ├── Editor/              # Unity editor tools
+│   │   ├── ZombieAnimatorAutoSetup.cs
+│   │   ├── ZombieAnimatorSetup.cs
+│   │   ├── ZombieModelFixer.cs
+│   │   └── ZombieSetupTool.cs
+│   ├── Models/
+│   │   ├── Enemies/         # Zombie models & animations
+│   │   └── Weapons/         # Gun models
+│   ├── Resources/           # Runtime-loaded prefabs
+│   ├── Scenes/
+│   │   └── MainGame.unity   # Main game scene
+│   └── Scripts/
+│       ├── AI/
+│       │   └── EnemyAI.cs
+│       ├── Core/
+│       │   ├── GameManager.cs
+│       │   ├── InputHandler.cs
+│       │   └── UISystem.cs
+│       ├── Player/
+│       │   ├── PlayerController.cs
+│       │   └── WeaponSystem.cs
+│       ├── Rendering/
+│       │   └── NeonMaterialFactory.cs
+│       ├── System/
+│       │   └── ObjectPool.cs
+│       └── World/
+│           ├── PostApocalypticMapGenerator.cs
+│           ├── DetailedBuildingGenerator.cs
+│           ├── DetailedRoadGenerator.cs
+│           └── AtmosphereEffects.cs
 ├── Packages/
 ├── ProjectSettings/
 └── UserSettings/
 ```
 
-### Core Systems
-- **Procedural Map Generation** - Town generated from code
-- **Wave Management** - Automatic enemy spawning system
-- **Object Pooling** - Optimized enemy management
-- **Animation System** - FBX animation support for zombies
-
 ---
 
 ## 🚧 Development Status
 
-**⚠️ THIS IS AN UNFINISHED PROJECT**
+> ⚠️ **This is an unfinished project** currently in active development.
 
-### What Works ✅
-- Basic gameplay loop
-- Wave-based zombie spawning
-- FPS movement and shooting
-- Post-apocalyptic environment
-- Zombie AI (chase, attack, die)
-- Scoring system
-- Basic UI (wave counter, score, health)
+### ✅ Completed
+- [x] Basic FPS controls and movement
+- [x] Wave-based enemy spawning
+- [x] Zombie AI (chase, attack, death)
+- [x] Shooting mechanics with raycast
+- [x] Procedural town generation
+- [x] Atmospheric effects (fog, dust, fire)
+- [x] HUD (health, score, wave counter)
 
-### Needs Work 🔨
-- **Visual Effects** - Particle systems, better muzzle flash
-- **Environment Details** - More props, textures, variety
-- **Zombie Visuals** - Better model integration, materials
-- **Sound Effects** - Gunshots, zombie sounds, ambient audio
-- **Music** - Background soundtrack
-- **Polish** - Bug fixes, optimization, balance
-- **More Content** - Additional weapons, zombie types, maps
-
----
-
-## 🎨 Screenshots
-
-*Coming soon - game is in active development*
+### 🔨 Needs Work
+- [ ] **Visual Effects** - Better particles, post-processing
+- [ ] **Zombie Animations** - Smoother transitions, more variety
+- [ ] **Sound Design** - Gunshots, zombie sounds, ambient audio
+- [ ] **More Weapons** - Shotgun, rifle, melee options
+- [ ] **Environment Polish** - More detailed textures and models
+- [ ] **UI/UX** - Main menu, settings, game over screen
+- [ ] **Performance** - Optimization for lower-end hardware
+- [ ] **Game Balance** - Difficulty tuning, progression
 
 ---
 
-## 🚀 How to Run
+## 🚀 Getting Started
 
-1. **Requirements:**
-   - Unity 2022.3 or newer
-   - Windows 10/11
+### Requirements
+- Unity 2022.3 or later
+- Built-in Render Pipeline
 
-2. **Setup:**
-   ```
-   1. Clone this repository
-   2. Open the project in Unity
-   3. Open Assets/Scenes/MainGame.unity
-   4. Press Play
-   ```
+### Installation
+1. Clone the repository:
+```bash
+git clone https://github.com/abel2800/Rust-Town.git
+```
 
-3. **Build:**
-   ```
-   File → Build Settings → Build
-   ```
+2. Open in Unity Hub
+
+3. Open scene: `Assets/Scenes/MainGame.unity`
+
+4. Press Play to test!
+
+### Setting Up Zombies
+1. In Unity: `Tools → Auto Setup Zombie Animations`
+2. Click "AUTO-SETUP EVERYTHING"
+3. Press Play
 
 ---
 
-## 📝 Version History
+## 📸 Screenshots
 
-- **v0.1** (Current) - Initial development version
-  - Basic gameplay mechanics
-  - Post-apocalyptic environment
-  - Zombie wave system
-  - FPS combat
+*Coming soon*
 
 ---
 
@@ -160,19 +201,20 @@ Rust Town/
 
 ## 📄 License
 
-This project is **proprietary software**. All rights reserved.
+**© 2024 abel2800. All Rights Reserved.**
 
-See [LICENSE](LICENSE) for details.
+This is proprietary software. Unauthorized copying, modification, distribution, or use of this software is strictly prohibited without explicit written permission from the author.
 
----
-
-## 🙏 Acknowledgments
-
-- Unity Technologies
-- 3D Model assets from various sources
-- Inspired by classic zombie survival games
+See [LICENSE](LICENSE) for full details.
 
 ---
 
-**⚠️ Note:** This game is a work in progress. Features may be incomplete or change significantly during development.
+## 🙏 Assets Used
+
+- [Mixamo](https://www.mixamo.com/) - Character animations
+- [Sketchfab](https://sketchfab.com/) - 3D models
+
+---
+
+*Rust Town - Survive the Sundown* 🌅🧟
 
