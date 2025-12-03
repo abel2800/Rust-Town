@@ -59,10 +59,12 @@ The game features a procedurally generated post-apocalyptic small town:
 |-----|--------|
 | `W A S D` | Move |
 | `Mouse` | Look Around |
-| `Left Click` | Shoot |
+| `Left Click` | Shoot (Full Auto) |
+| `Right Click` | Aim Down Sights (ADS) |
 | `Shift` | Sprint |
 | `Space` | Jump |
-| `ESC` | Pause |
+| `F11` | Toggle Fullscreen |
+| `ESC` | Pause / Exit Fullscreen |
 
 ---
 
@@ -97,6 +99,27 @@ The game features a detailed zombie character with the **Scary Zombie Pack** ani
 
 ## 🔫 Combat System
 
+### AK-47 Assault Rifle
+| Stat | Value |
+|------|-------|
+| **Damage** | 35 per hit |
+| **Fire Mode** | Full Auto |
+| **Range** | 150m |
+| **Hip Fire Accuracy** | 95% |
+| **ADS Accuracy** | 99% |
+
+### Aim Down Sights (ADS)
+- **Right Click** to aim down sights
+- Camera zooms in (80° → 45° FOV)
+- Gun moves to center for precision aiming
+- Red dot sight crosshair appears
+- Improved accuracy while aiming
+
+### Crosshair System
+- **Hip Fire**: Military-style white crosshair with center dot
+- **ADS Mode**: Red dot sight for precise targeting
+
+### Combat Features
 - **Raycast Shooting** - Instant hit detection
 - **Headshot Bonus** - 2x damage for head hits
 - **Gun Recoil** - Visual kickback animation
@@ -114,17 +137,16 @@ Rust Town/
 │   ├── Editor/                      # Unity editor tools
 │   │   └── ZombieAnimatorSetup.cs   # Auto-creates animator controller
 │   ├── Resources/
-│   │   └── Enemies/Zombie/          # Zombie assets
-│   │       ├── ZombieModel.fbx      # Zombie 3D model (appearance)
-│   │       ├── X Bot.fbx            # Alternative zombie model
-│   │       ├── ZombieAnimator.controller
-│   │       ├── ZombieMat.mat        # Zombie material
-│   │       ├── zombie run.fbx       # Run animation
-│   │       ├── zombie attack.fbx    # Attack animation
-│   │       ├── zombie death.fbx     # Death animation
-│   │       ├── zombie biting.fbx    # Bite animation
-│   │       ├── zombie scream.fbx    # Scream animation
-│   │       └── Textures/            # Zombie textures
+│   │   ├── Enemies/Zombie/          # Zombie assets
+│   │   │   ├── ZombieModel.fbx      # Zombie 3D model (appearance)
+│   │   │   ├── ZombieAnimator.controller
+│   │   │   ├── zombie run.fbx       # Run animation
+│   │   │   ├── zombie attack.fbx    # Attack animation
+│   │   │   ├── zombie death.fbx     # Death animation
+│   │   │   └── Textures/            # Zombie textures
+│   │   └── Weapons/AK47/            # Weapon assets
+│   │       ├── AK47.fbx             # AK-47 assault rifle model
+│   │       └── Textures/            # Weapon textures
 │   ├── Scenes/
 │   │   └── MainGame.unity           # Main game scene
 │   └── Scripts/
@@ -174,10 +196,14 @@ Rust Town/
 - [x] **Fullscreen Support** - Game starts fullscreen, F11 to toggle
 - [x] **Realistic Terrain** - Natural ground with varied surfaces
 - [x] **Forest Border** - Dense forest surrounding the map
+- [x] **AK-47 Assault Rifle** - Full auto weapon with wood/metal design
+- [x] **Aim Down Sights (ADS)** - Right-click to zoom and aim precisely
+- [x] **Professional Crosshair** - Military-style hip fire + red dot ADS
+- [x] **Dynamic FOV** - Smooth zoom transition when aiming
 
 ### 🔨 Needs Work
 - [ ] **Sound Design** - Gunshots, zombie sounds, ambient audio
-- [ ] **More Weapons** - Shotgun, rifle, melee options
+- [ ] **More Weapons** - Shotgun, pistol, melee options
 - [ ] **UI/UX** - Main menu, settings, game over screen
 - [ ] **Performance** - Optimization for lower-end hardware
 - [ ] **Game Balance** - Difficulty tuning, progression
@@ -238,6 +264,7 @@ See [LICENSE](LICENSE) for full details.
 
 - **Scary Zombie Pack** - Zombie animations (run, attack, bite, death, scream, crawl)
 - **Custom Zombie Model** - Detailed zombie 3D model with textures
+- **Kalashnicolt AK-47/M16 Hybrid** - Custom assault rifle model with scope
 - [Mixamo](https://www.mixamo.com/) - Character animations (humanoid rig compatible)
 - [Sketchfab](https://sketchfab.com/) - 3D models
 
