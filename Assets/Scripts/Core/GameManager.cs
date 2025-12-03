@@ -211,23 +211,17 @@ namespace NeonArena.Core
             enemyObj.transform.position = spawnPos;
             enemyObj.layer = 0; // Default layer
 
-            // Try to load the zombie model from multiple possible locations
+            // Load the zombie model (appearance) - use ZombieModel.fbx for looks
             GameObject zombieModel = null;
             
-            // Try loading prefab first (most reliable)
-            zombieModel = Resources.Load<GameObject>("Enemies/Zombie/ZombiePrefab");
+            // ZombieModel.fbx has the scary zombie appearance
+            zombieModel = Resources.Load<GameObject>("Enemies/Zombie/ZombieModel");
             
-            // Try FBX file (new zombie walk model)
+            // Fallback options
             if (zombieModel == null)
-                zombieModel = Resources.Load<GameObject>("Enemies/Zombie/source/Zombie Walk");
-            
-            // Try other possible names
+                zombieModel = Resources.Load<GameObject>("Enemies/Zombie/X Bot");
             if (zombieModel == null)
-                zombieModel = Resources.Load<GameObject>("Enemies/Zombie/source/model");
-            if (zombieModel == null)
-                zombieModel = Resources.Load<GameObject>("Enemies/Zombie/model");
-            if (zombieModel == null)
-                zombieModel = Resources.Load<GameObject>("Zombie");
+                zombieModel = Resources.Load<GameObject>("Enemies/Zombie/Zombie");
             
             if (zombieModel != null)
             {
@@ -235,28 +229,62 @@ namespace NeonArena.Core
                 GameObject model = Instantiate(zombieModel, enemyObj.transform);
                 model.name = "ZombieModel";
                 model.transform.localPosition = new Vector3(0, 0, 0);
-                model.transform.localScale = new Vector3(1f, 1f, 1f); // Normal scale - adjust if needed!
-                model.transform.localRotation = Quaternion.Euler(0, 0, 0); // Face forward
+                model.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f); // FBX models are usually 100x scale
+                model.transform.localRotation = Quaternion.Euler(0, 0, 0);
                 
-                // Check model bounds and adjust scale if needed
+                // Check model bounds and adjust scale/position
                 Renderer[] renderers = model.GetComponentsInChildren<Renderer>();
                 if (renderers.Length > 0)
                 {
-                    Bounds bounds = renderers[0].bounds;
+                    // Recalculate bounds after initial scale
+                    Bounds bounds = new Bounds(model.transform.position, Vector3.zero);
                     foreach (Renderer r in renderers)
                         bounds.Encapsulate(r.bounds);
                     
                     float height = bounds.size.y;
-                    Debug.Log($"Zombie model height: {height}");
+                    Debug.Log($"Zombie model height after 0.01 scale: {height}");
                     
-                    // Auto-scale to reasonable size (target ~2 meters tall)
+                    // If still too big or too small, adjust
                     if (height > 0.01f)
                     {
                         float targetHeight = 2f;
                         float scaleFactor = targetHeight / height;
-                        model.transform.localScale = Vector3.one * scaleFactor;
-                        Debug.Log($"Auto-scaled zombie by {scaleFactor}");
+                        model.transform.localScale *= scaleFactor;
+                        Debug.Log($"Auto-scaled zombie by additional {scaleFactor}");
                     }
+                    
+                    // Position model so feet are at ground level
+                    bounds = new Bounds(model.transform.position, Vector3.zero);
+                    foreach (Renderer r in renderers)
+                        bounds.Encapsulate(r.bounds);
+                    
+                    float bottomY = bounds.min.y - enemyObj.transform.position.y;
+                    model.transform.localPosition = new Vector3(0, -bottomY, 0);
+                    
+                    // Fix materials - load textures and apply to renderers
+                    ApplyZombieTextures(renderers);
+                }
+                
+                // Setup animator with ZombieAnimator controller
+                Animator anim = model.GetComponent<Animator>();
+                if (anim == null)
+                    anim = model.GetComponentInChildren<Animator>();
+                if (anim == null)
+                    anim = model.AddComponent<Animator>();
+                
+                // Load and apply the ZombieAnimator controller
+                RuntimeAnimatorController zombieController = Resources.Load<RuntimeAnimatorController>("Enemies/Zombie/ZombieAnimator");
+                if (zombieController != null)
+                {
+                    anim.runtimeAnimatorController = zombieController;
+                    anim.applyRootMotion = false;
+                    anim.enabled = true;
+                    anim.Play("Run", 0, 0f);
+                    Debug.Log("✅ ZombieAnimator controller applied, playing Run animation!");
+                }
+                else
+                {
+                    Debug.LogWarning("⚠️ ZombieAnimator controller not found!");
                 }
                 
                 // Add collider to parent
@@ -265,23 +293,70 @@ namespace NeonArena.Core
                 col.radius = 0.5f;
                 col.center = new Vector3(0, 1f, 0);
                 
-                // Setup animator if the model has one
-                Animator anim = model.GetComponent<Animator>();
-                if (anim == null)
-                    anim = model.GetComponentInChildren<Animator>();
-                
                 Debug.Log("✅ Zombie model loaded successfully!");
             }
             else
             {
                 // Create placeholder enemy using primitives (fallback)
-                Debug.Log("⚠️ Zombie model not found - using placeholder. See HOW_TO_USE_YOUR_ZOMBIE_MODEL.md");
+                Debug.LogWarning("⚠️ Zombie model not found - using placeholder. Please create a prefab called 'Zombie' in Resources/Enemies/Zombie/");
                 CreatePlaceholderEnemy(enemyObj);
             }
 
             // Add AI component with animation support
             AI.EnemyAI enemyAI = enemyObj.AddComponent<AI.EnemyAI>();
             enemyAI.Initialize(CurrentWave, difficultyScaling);
+        }
+        
+        private void ApplyZombieTextures(Renderer[] renderers)
+        {
+            // Try to load zombie textures
+            Texture2D diffuse = Resources.Load<Texture2D>("Enemies/Zombie/Textures/zombie_Packed0_Diffuse");
+            Texture2D normal = Resources.Load<Texture2D>("Enemies/Zombie/Textures/zombie_Packed0_Normal");
+            Texture2D specular = Resources.Load<Texture2D>("Enemies/Zombie/Textures/zombie_Packed0_Specular");
+            
+            if (diffuse == null)
+            {
+                Debug.LogWarning("Could not load zombie diffuse texture");
+                return;
+            }
+            
+            Debug.Log("✅ Loaded zombie textures");
+            
+            foreach (Renderer r in renderers)
+            {
+                foreach (Material mat in r.materials)
+                {
+                    // Apply diffuse/albedo texture
+                    if (mat.HasProperty("_MainTex"))
+                        mat.SetTexture("_MainTex", diffuse);
+                    if (mat.HasProperty("_BaseMap"))
+                        mat.SetTexture("_BaseMap", diffuse);
+                    if (mat.HasProperty("_BaseColor"))
+                        mat.SetColor("_BaseColor", Color.white);
+                    if (mat.HasProperty("_Color"))
+                        mat.SetColor("_Color", Color.white);
+                    
+                    // Apply normal map
+                    if (normal != null && mat.HasProperty("_BumpMap"))
+                        mat.SetTexture("_BumpMap", normal);
+                    if (normal != null && mat.HasProperty("_NormalMap"))
+                        mat.SetTexture("_NormalMap", normal);
+                    
+                    // Apply specular/metallic
+                    if (specular != null && mat.HasProperty("_SpecGlossMap"))
+                        mat.SetTexture("_SpecGlossMap", specular);
+                    if (specular != null && mat.HasProperty("_MetallicGlossMap"))
+                        mat.SetTexture("_MetallicGlossMap", specular);
+                    
+                    // Set proper material properties
+                    if (mat.HasProperty("_Smoothness"))
+                        mat.SetFloat("_Smoothness", 0.3f);
+                    if (mat.HasProperty("_Glossiness"))
+                        mat.SetFloat("_Glossiness", 0.3f);
+                    if (mat.HasProperty("_Metallic"))
+                        mat.SetFloat("_Metallic", 0f);
+                }
+            }
         }
         
         private void CreatePlaceholderEnemy(GameObject enemyObj)

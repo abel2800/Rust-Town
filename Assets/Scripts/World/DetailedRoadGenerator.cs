@@ -10,18 +10,8 @@ namespace NeonArena.World
     {
         public static void CreateDetailedRoad(Vector3 center, float width, float length, List<GameObject> objectList)
         {
-            // Main asphalt surface
-            GameObject road = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            road.name = "Road";
-            road.transform.position = center + Vector3.up * 0.02f;
-            road.transform.localScale = new Vector3(width, 0.05f, length);
-            
-            Material asphaltMat = new Material(Shader.Find("Standard"));
-            asphaltMat.SetColor("_Color", new Color(0.12f, 0.12f, 0.13f));
-            asphaltMat.SetFloat("_Metallic", 0f);
-            asphaltMat.SetFloat("_Glossiness", 0.15f);
-            road.GetComponent<Renderer>().material = asphaltMat;
-            objectList.Add(road);
+            // Multi-layer asphalt for realistic depth
+            CreateAsphaltLayers(center, width, length, objectList);
             
             // Center line (faded yellow)
             CreateCenterLine(center, length, objectList);
@@ -29,23 +19,212 @@ namespace NeonArena.World
             // Edge lines (faded white)
             CreateEdgeLines(center, width, length, objectList);
             
-            // Potholes
-            CreatePotholes(center, width, length, 15, objectList);
+            // Potholes with depth
+            CreatePotholes(center, width, length, 18, objectList);
             
-            // Cracks
-            CreateCracks(center, width, length, 25, objectList);
+            // Realistic crack network
+            CreateCracks(center, width, length, 30, objectList);
             
-            // Oil stains
-            CreateOilStains(center, width, length, 8, objectList);
+            // Oil stains with rainbow sheen
+            CreateOilStains(center, width, length, 12, objectList);
             
-            // Tire marks
-            CreateTireMarks(center, width, length, 5, objectList);
+            // Tire marks (skid marks)
+            CreateTireMarks(center, width, length, 6, objectList);
+            
+            // Rain puddles (wet spots)
+            CreateRainPuddles(center, width, length, objectList);
             
             // Debris on road
             CreateRoadDebris(center, width, length, objectList);
             
-            // Curbs
+            // Realistic curbs with gutters
             CreateCurbs(center, width, length, objectList);
+            
+            // Manhole covers
+            CreateManholes(center, width, length, objectList);
+            
+            // Faded patches where asphalt was repaired
+            CreateRepairPatches(center, width, length, objectList);
+        }
+        
+        private static void CreateAsphaltLayers(Vector3 center, float width, float length, List<GameObject> objectList)
+        {
+            // Base layer - dark asphalt
+            GameObject baseLayer = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            baseLayer.name = "RoadBase";
+            baseLayer.transform.position = center + Vector3.up * 0.01f;
+            baseLayer.transform.localScale = new Vector3(width, 0.03f, length);
+            
+            Material baseMat = URPMaterialHelper.CreateMaterial(new Color(0.12f, 0.12f, 0.13f), 0.15f, 0f);
+            baseLayer.GetComponent<Renderer>().material = baseMat;
+            objectList.Add(baseLayer);
+            
+            // Main surface with texture variation
+            int tileCount = 6;
+            float tileWidth = width / tileCount;
+            
+            for (int i = 0; i < tileCount; i++)
+            {
+                float xPos = -width/2 + tileWidth/2 + i * tileWidth;
+                
+                GameObject tile = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                tile.name = "RoadSurface";
+                tile.transform.position = center + new Vector3(xPos, 0.025f, 0);
+                tile.transform.localScale = new Vector3(tileWidth + 0.05f, 0.02f, length);
+                
+                Material tileMat = new Material(URPMaterialHelper.GetLitShader());
+                // Subtle color variation for realism
+                float variation = Random.Range(-0.02f, 0.02f);
+                tileMat.SetColor("_Color", new Color(
+                    0.12f + variation,
+                    0.12f + variation,
+                    0.13f + variation
+                ));
+                tileMat.SetFloat("_Metallic", 0f);
+                tileMat.SetFloat("_Glossiness", Random.Range(0.1f, 0.18f));
+                tile.GetComponent<Renderer>().material = tileMat;
+                objectList.Add(tile);
+            }
+            
+            // Worn wheel tracks (slightly shinier from tire polish)
+            for (int side = -1; side <= 1; side += 2)
+            {
+                float trackX = side * 1.5f;  // Typical wheel spacing
+                
+                GameObject track = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                track.name = "WheelTrack";
+                track.transform.position = center + new Vector3(trackX, 0.027f, 0);
+                track.transform.localScale = new Vector3(0.4f, 0.005f, length);
+                
+                Material trackMat = new Material(URPMaterialHelper.GetLitShader());
+                trackMat.SetColor("_Color", new Color(0.1f, 0.1f, 0.11f));
+                trackMat.SetFloat("_Glossiness", 0.25f);  // Slightly shinier
+                track.GetComponent<Renderer>().material = trackMat;
+                Destroy(track.GetComponent<Collider>());
+                objectList.Add(track);
+            }
+        }
+        
+        private static void CreateRainPuddles(Vector3 center, float width, float length, List<GameObject> objectList)
+        {
+            int puddleCount = Random.Range(5, 10);
+            
+            for (int i = 0; i < puddleCount; i++)
+            {
+                Vector3 pos = center + new Vector3(
+                    Random.Range(-width/2.5f, width/2.5f),
+                    0.028f,
+                    Random.Range(-length/2.5f, length/2.5f)
+                );
+                
+                GameObject puddle = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                puddle.name = "RainPuddle";
+                float size = Random.Range(0.4f, 1.5f);
+                puddle.transform.position = pos;
+                puddle.transform.localScale = new Vector3(
+                    size * Random.Range(0.8f, 1.2f),
+                    0.002f,
+                    size * Random.Range(0.8f, 1.2f)
+                );
+                
+                Material puddleMat = new Material(URPMaterialHelper.GetLitShader());
+                puddleMat.SetColor("_Color", new Color(0.08f, 0.09f, 0.12f, 0.7f));
+                puddleMat.SetFloat("_Metallic", 0.2f);
+                puddleMat.SetFloat("_Glossiness", 0.92f);  // Very reflective water
+                puddle.GetComponent<Renderer>().material = puddleMat;
+                Destroy(puddle.GetComponent<Collider>());
+                objectList.Add(puddle);
+            }
+        }
+        
+        private static void CreateManholes(Vector3 center, float width, float length, List<GameObject> objectList)
+        {
+            int manholeCount = Random.Range(2, 4);
+            
+            for (int i = 0; i < manholeCount; i++)
+            {
+                float zPos = -length/2 + (i + 1) * (length / (manholeCount + 1));
+                Vector3 pos = center + new Vector3(Random.Range(-2f, 2f), 0.026f, zPos);
+                
+                // Manhole cover
+                GameObject cover = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                cover.name = "ManholeCover";
+                cover.transform.position = pos;
+                cover.transform.localScale = new Vector3(0.8f, 0.02f, 0.8f);
+                
+                Material coverMat = new Material(URPMaterialHelper.GetLitShader());
+                coverMat.SetColor("_Color", new Color(0.25f, 0.25f, 0.27f));
+                coverMat.SetFloat("_Metallic", 0.8f);
+                coverMat.SetFloat("_Glossiness", 0.4f);
+                cover.GetComponent<Renderer>().material = coverMat;
+                Destroy(cover.GetComponent<Collider>());
+                objectList.Add(cover);
+                
+                // Manhole rim
+                GameObject rim = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                rim.name = "ManholeRim";
+                rim.transform.position = pos + Vector3.up * 0.005f;
+                rim.transform.localScale = new Vector3(0.9f, 0.01f, 0.9f);
+                
+                Material rimMat = new Material(URPMaterialHelper.GetLitShader());
+                rimMat.SetColor("_Color", new Color(0.15f, 0.15f, 0.16f));
+                rim.GetComponent<Renderer>().material = rimMat;
+                Destroy(rim.GetComponent<Collider>());
+                objectList.Add(rim);
+                
+                // Pattern on cover (cross hatching)
+                for (int j = 0; j < 4; j++)
+                {
+                    GameObject line = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    line.name = "CoverPattern";
+                    line.transform.position = pos + new Vector3(0, 0.022f, -0.2f + j * 0.12f);
+                    line.transform.localScale = new Vector3(0.6f, 0.005f, 0.03f);
+                    
+                    Material lineMat = new Material(URPMaterialHelper.GetLitShader());
+                    lineMat.SetColor("_Color", new Color(0.2f, 0.2f, 0.22f));
+                    lineMat.SetFloat("_Metallic", 0.7f);
+                    line.GetComponent<Renderer>().material = lineMat;
+                    Destroy(line.GetComponent<Collider>());
+                    objectList.Add(line);
+                }
+            }
+        }
+        
+        private static void CreateRepairPatches(Vector3 center, float width, float length, List<GameObject> objectList)
+        {
+            int patchCount = Random.Range(3, 7);
+            
+            for (int i = 0; i < patchCount; i++)
+            {
+                Vector3 pos = center + new Vector3(
+                    Random.Range(-width/2.5f, width/2.5f),
+                    0.026f,
+                    Random.Range(-length/2.5f, length/2.5f)
+                );
+                
+                GameObject patch = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                patch.name = "RepairPatch";
+                patch.transform.position = pos;
+                patch.transform.localScale = new Vector3(
+                    Random.Range(0.8f, 2.5f),
+                    0.01f,
+                    Random.Range(0.8f, 2.5f)
+                );
+                patch.transform.rotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
+                
+                Material patchMat = new Material(URPMaterialHelper.GetLitShader());
+                // Newer asphalt is darker
+                float age = Random.value;
+                patchMat.SetColor("_Color", new Color(
+                    0.06f + age * 0.06f,
+                    0.06f + age * 0.06f,
+                    0.07f + age * 0.06f
+                ));
+                patchMat.SetFloat("_Glossiness", 0.12f + age * 0.1f);
+                patch.GetComponent<Renderer>().material = patchMat;
+                Destroy(patch.GetComponent<Collider>());
+                objectList.Add(patch);
+            }
         }
         
         private static void CreateCenterLine(Vector3 center, float length, List<GameObject> objectList)
@@ -62,7 +241,7 @@ namespace NeonArena.World
                     line.transform.position = center + new Vector3(0, 0.025f, i * 4f);
                     line.transform.localScale = new Vector3(0.12f, 0.01f, Random.Range(1.5f, 2.5f));
                     
-                    Material lineMat = new Material(Shader.Find("Standard"));
+                    Material lineMat = new Material(URPMaterialHelper.GetLitShader());
                     float fade = Random.Range(0.4f, 0.7f);
                     lineMat.SetColor("_Color", new Color(0.7f * fade, 0.6f * fade, 0.2f * fade));
                     lineMat.SetFloat("_Glossiness", 0.1f);
@@ -91,7 +270,7 @@ namespace NeonArena.World
                     line.transform.position = center + new Vector3(xPos, 0.025f, zPos);
                     line.transform.localScale = new Vector3(0.1f, 0.01f, segLength);
                     
-                    Material lineMat = new Material(Shader.Find("Standard"));
+                    Material lineMat = new Material(URPMaterialHelper.GetLitShader());
                     float fade = Random.Range(0.3f, 0.6f);
                     lineMat.SetColor("_Color", new Color(0.8f * fade, 0.8f * fade, 0.8f * fade));
                     line.GetComponent<Renderer>().material = lineMat;
@@ -122,7 +301,7 @@ namespace NeonArena.World
                     Random.Range(0.3f, 1.2f)
                 );
                 
-                Material holeMat = new Material(Shader.Find("Standard"));
+                Material holeMat = new Material(URPMaterialHelper.GetLitShader());
                 holeMat.SetColor("_Color", new Color(0.03f, 0.03f, 0.04f));
                 hole.GetComponent<Renderer>().material = holeMat;
                 Destroy(hole.GetComponent<Collider>());
@@ -141,7 +320,7 @@ namespace NeonArena.World
                     edge.transform.localScale = new Vector3(Random.Range(0.1f, 0.25f), 0.015f, Random.Range(0.05f, 0.15f));
                     edge.transform.rotation = Quaternion.Euler(0, angle * Mathf.Rad2Deg + Random.Range(-20f, 20f), 0);
                     
-                    Material edgeMat = new Material(Shader.Find("Standard"));
+                    Material edgeMat = new Material(URPMaterialHelper.GetLitShader());
                     edgeMat.SetColor("_Color", new Color(0.08f, 0.08f, 0.09f));
                     edge.GetComponent<Renderer>().material = edgeMat;
                     Destroy(edge.GetComponent<Collider>());
@@ -173,7 +352,7 @@ namespace NeonArena.World
                     crack.transform.localScale = new Vector3(Random.Range(0.02f, 0.06f), 0.008f, Random.Range(0.3f, 1f));
                     crack.transform.rotation = Quaternion.Euler(0, currentAngle, 0);
                     
-                    Material crackMat = new Material(Shader.Find("Standard"));
+                    Material crackMat = new Material(URPMaterialHelper.GetLitShader());
                     crackMat.SetColor("_Color", new Color(0.02f, 0.02f, 0.03f));
                     crack.GetComponent<Renderer>().material = crackMat;
                     Destroy(crack.GetComponent<Collider>());
@@ -207,7 +386,7 @@ namespace NeonArena.World
                 );
                 stain.transform.rotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
                 
-                Material stainMat = new Material(Shader.Find("Standard"));
+                Material stainMat = new Material(URPMaterialHelper.GetLitShader());
                 stainMat.SetColor("_Color", new Color(0.05f, 0.04f, 0.06f));
                 stainMat.SetFloat("_Metallic", 0.4f);
                 stainMat.SetFloat("_Glossiness", 0.6f);
@@ -244,7 +423,7 @@ namespace NeonArena.World
                     mark.transform.localScale = new Vector3(0.2f, 0.006f, markLength / segments + 0.1f);
                     mark.transform.rotation = Quaternion.Euler(0, curve * t, 0);
                     
-                    Material markMat = new Material(Shader.Find("Standard"));
+                    Material markMat = new Material(URPMaterialHelper.GetLitShader());
                     markMat.SetColor("_Color", new Color(0.06f, 0.06f, 0.07f));
                     mark.GetComponent<Renderer>().material = markMat;
                     Destroy(mark.GetComponent<Collider>());
@@ -277,7 +456,7 @@ namespace NeonArena.World
                 );
                 debris.transform.rotation = Random.rotation;
                 
-                Material debrisMat = new Material(Shader.Find("Standard"));
+                Material debrisMat = new Material(URPMaterialHelper.GetLitShader());
                 debrisMat.SetColor("_Color", new Color(
                     Random.Range(0.15f, 0.35f),
                     Random.Range(0.13f, 0.3f),
@@ -311,7 +490,7 @@ namespace NeonArena.World
                     Random.Range(-10f, 10f)
                 );
                 
-                Material debrisMat = new Material(Shader.Find("Standard"));
+                Material debrisMat = new Material(URPMaterialHelper.GetLitShader());
                 debrisMat.SetColor("_Color", new Color(0.35f, 0.32f, 0.28f));
                 largeDebris.GetComponent<Renderer>().material = debrisMat;
                 objectList.Add(largeDebris);
@@ -329,7 +508,7 @@ namespace NeonArena.World
                 curb.transform.position = center + new Vector3(xPos, 0.08f, 0);
                 curb.transform.localScale = new Vector3(0.3f, 0.16f, length);
                 
-                Material curbMat = new Material(Shader.Find("Standard"));
+                Material curbMat = new Material(URPMaterialHelper.GetLitShader());
                 curbMat.SetColor("_Color", new Color(0.45f, 0.43f, 0.4f));
                 curbMat.SetFloat("_Glossiness", 0.15f);
                 curb.GetComponent<Renderer>().material = curbMat;
@@ -353,7 +532,7 @@ namespace NeonArena.World
                         Random.Range(-5f, 5f)
                     );
                     
-                    Material damageMat = new Material(Shader.Find("Standard"));
+                    Material damageMat = new Material(URPMaterialHelper.GetLitShader());
                     damageMat.SetColor("_Color", new Color(0.35f, 0.33f, 0.3f));
                     damage.GetComponent<Renderer>().material = damageMat;
                     Destroy(damage.GetComponent<Collider>());

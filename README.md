@@ -68,12 +68,25 @@ The game features a procedurally generated post-apocalyptic small town:
 
 ## 🧟 Enemy System
 
+### Zombie Model & Animations
+The game features a detailed zombie character with the **Scary Zombie Pack** animations:
+
+| Animation | Description |
+|-----------|-------------|
+| 🏃 **Run** | Default movement toward player |
+| ⚔️ **Attack** | Melee strike when in range |
+| 🦷 **Bite** | Alternate attack animation |
+| 💀 **Death** | Death animation when killed |
+| 😱 **Scream** | Zombie scream effect |
+| 🚶 **Walk** | Slow movement animation |
+| 🧎 **Crawl** | Crawling zombie variant |
+
 ### Zombie AI Behaviors
 - **Seek** - Wanders when player not detected
-- **Chase** - Pursues player when in range
-- **Attack** - Melee damage when close
+- **Chase** - Pursues player when in range (uses Run animation)
+- **Attack** - Melee damage when close (Attack/Bite animations)
 - **Evade** - Random dodge movements
-- **Death** - Ragdoll fall animation with fade out
+- **Death** - Animated death with configurable despawn time
 
 ### Wave Progression
 - Enemy count increases each wave
@@ -98,22 +111,27 @@ The game features a procedurally generated post-apocalyptic small town:
 ```
 Rust Town/
 ├── Assets/
-│   ├── Editor/              # Unity editor tools
-│   │   ├── ZombieAnimatorAutoSetup.cs
-│   │   ├── ZombieAnimatorSetup.cs
-│   │   ├── ZombieModelFixer.cs
-│   │   └── ZombieSetupTool.cs
-│   ├── Models/
-│   │   ├── Enemies/         # Zombie models & animations
-│   │   └── Weapons/         # Gun models
-│   ├── Resources/           # Runtime-loaded prefabs
+│   ├── Editor/                      # Unity editor tools
+│   │   └── ZombieAnimatorSetup.cs   # Auto-creates animator controller
+│   ├── Resources/
+│   │   └── Enemies/Zombie/          # Zombie assets
+│   │       ├── ZombieModel.fbx      # Zombie 3D model (appearance)
+│   │       ├── X Bot.fbx            # Alternative zombie model
+│   │       ├── ZombieAnimator.controller
+│   │       ├── ZombieMat.mat        # Zombie material
+│   │       ├── zombie run.fbx       # Run animation
+│   │       ├── zombie attack.fbx    # Attack animation
+│   │       ├── zombie death.fbx     # Death animation
+│   │       ├── zombie biting.fbx    # Bite animation
+│   │       ├── zombie scream.fbx    # Scream animation
+│   │       └── Textures/            # Zombie textures
 │   ├── Scenes/
-│   │   └── MainGame.unity   # Main game scene
+│   │   └── MainGame.unity           # Main game scene
 │   └── Scripts/
 │       ├── AI/
-│       │   └── EnemyAI.cs
+│       │   └── EnemyAI.cs           # Zombie AI with animation support
 │       ├── Core/
-│       │   ├── GameManager.cs
+│       │   ├── GameManager.cs       # Game state, waves, spawning
 │       │   ├── InputHandler.cs
 │       │   └── UISystem.cs
 │       ├── Player/
@@ -127,6 +145,9 @@ Rust Town/
 │           ├── PostApocalypticMapGenerator.cs
 │           ├── DetailedBuildingGenerator.cs
 │           ├── DetailedRoadGenerator.cs
+│           ├── RealisticTerrainGenerator.cs
+│           ├── ForestBorderGenerator.cs
+│           ├── URPMaterialHelper.cs
 │           └── AtmosphereEffects.cs
 ├── Packages/
 ├── ProjectSettings/
@@ -147,16 +168,20 @@ Rust Town/
 - [x] Procedural town generation
 - [x] Atmospheric effects (fog, dust, fire)
 - [x] HUD (health, score, wave counter)
+- [x] **Scary Zombie Pack** - Full animation set (run, attack, bite, death, scream, crawl)
+- [x] **Custom Zombie Model** - Detailed zombie appearance with textures
+- [x] **Humanoid Animation Retargeting** - Animations work with custom zombie model
+- [x] **Fullscreen Support** - Game starts fullscreen, F11 to toggle
+- [x] **Realistic Terrain** - Natural ground with varied surfaces
+- [x] **Forest Border** - Dense forest surrounding the map
 
 ### 🔨 Needs Work
-- [ ] **Visual Effects** - Better particles, post-processing
-- [ ] **Zombie Animations** - Smoother transitions, more variety
 - [ ] **Sound Design** - Gunshots, zombie sounds, ambient audio
 - [ ] **More Weapons** - Shotgun, rifle, melee options
-- [ ] **Environment Polish** - More detailed textures and models
 - [ ] **UI/UX** - Main menu, settings, game over screen
 - [ ] **Performance** - Optimization for lower-end hardware
 - [ ] **Game Balance** - Difficulty tuning, progression
+- [ ] **NavMesh** - Proper pathfinding for zombies
 
 ---
 
@@ -211,7 +236,9 @@ See [LICENSE](LICENSE) for full details.
 
 ## 🙏 Assets Used
 
-- [Mixamo](https://www.mixamo.com/) - Character animations
+- **Scary Zombie Pack** - Zombie animations (run, attack, bite, death, scream, crawl)
+- **Custom Zombie Model** - Detailed zombie 3D model with textures
+- [Mixamo](https://www.mixamo.com/) - Character animations (humanoid rig compatible)
 - [Sketchfab](https://sketchfab.com/) - 3D models
 
 ---

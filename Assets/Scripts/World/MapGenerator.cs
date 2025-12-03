@@ -387,7 +387,7 @@ namespace NeonArena.World
             sidewalk.transform.position = position;
             sidewalk.transform.localScale = scale;
 
-            Material mat = new Material(Shader.Find("Standard"));
+            Material mat = new Material(URPMaterialHelper.GetLitShader());
             mat.SetColor("_Color", new Color(0.5f, 0.5f, 0.55f)); // Light concrete color
             mat.SetFloat("_Metallic", 0.1f);
             mat.SetFloat("_Glossiness", 0.3f);
@@ -407,7 +407,7 @@ namespace NeonArena.World
                 crack.transform.localScale = new Vector3(0.05f, 0.02f, Random.Range(0.3f, 1f));
                 crack.transform.localRotation = Quaternion.Euler(0, Random.Range(0f, 180f), 0);
 
-                Material crackMat = new Material(Shader.Find("Standard"));
+                Material crackMat = new Material(URPMaterialHelper.GetLitShader());
                 crackMat.SetColor("_Color", new Color(0.2f, 0.2f, 0.2f));
                 crack.GetComponent<Renderer>().material = crackMat;
             }
@@ -433,7 +433,7 @@ namespace NeonArena.World
                 );
                 patch.transform.rotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
 
-                Material mat = new Material(Shader.Find("Standard"));
+                Material mat = new Material(URPMaterialHelper.GetLitShader());
                 mat.SetColor("_Color", new Color(0.15f, 0.15f, 0.15f)); // Dark asphalt
                 mat.SetFloat("_Metallic", 0.0f);
                 mat.SetFloat("_Glossiness", 0.2f);
@@ -458,7 +458,7 @@ namespace NeonArena.World
                 can.transform.position = position + Vector3.up * 0.75f;
                 can.transform.localScale = new Vector3(0.5f, 0.75f, 0.5f);
 
-                Material canMat = new Material(Shader.Find("Standard"));
+                Material canMat = new Material(URPMaterialHelper.GetLitShader());
                 Color canColor = Random.value > 0.5f 
                     ? new Color(0.3f, 0.3f, 0.35f) // Grey
                     : new Color(0.2f, 0.4f, 0.25f); // Green
@@ -486,7 +486,7 @@ namespace NeonArena.World
                     stripe.transform.localPosition = new Vector3(0, -0.3f + j * 0.3f, 0.51f);
                     stripe.transform.localScale = new Vector3(0.8f, 0.05f, 0.02f);
 
-                    Material stripeMat = new Material(Shader.Find("Standard"));
+                    Material stripeMat = new Material(URPMaterialHelper.GetLitShader());
                     stripeMat.SetColor("_Color", new Color(0.4f, 0.25f, 0.15f)); // Rust color
                     stripe.GetComponent<Renderer>().material = stripeMat;
                 }
@@ -510,7 +510,7 @@ namespace NeonArena.World
                 crack.transform.localScale = new Vector3(Random.Range(0.03f, 0.08f), 0.005f, length);
                 crack.transform.rotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
 
-                Material mat = new Material(Shader.Find("Standard"));
+                Material mat = new Material(URPMaterialHelper.GetLitShader());
                 mat.SetColor("_Color", new Color(0.1f, 0.1f, 0.1f));
                 mat.EnableKeyword("_EMISSION");
                 mat.SetColor("_EmissionColor", Rendering.NeonMaterialFactory.GetCurrentThemeColor() * 0.3f);
@@ -543,7 +543,7 @@ namespace NeonArena.World
                     Random.Range(-5f, 5f)
                 );
 
-                Material mat = new Material(Shader.Find("Standard"));
+                Material mat = new Material(URPMaterialHelper.GetLitShader());
                 mat.SetColor("_Color", new Color(0.9f, 0.9f, 0.95f, 0.3f));
                 mat.SetFloat("_Metallic", 0.2f);
                 mat.SetFloat("_Glossiness", 0.95f);
@@ -576,7 +576,7 @@ namespace NeonArena.World
                     Random.Range(-20f, 20f)
                 );
 
-                Material mat = new Material(Shader.Find("Standard"));
+                Material mat = new Material(URPMaterialHelper.GetLitShader());
                 mat.SetColor("_Color", new Color(0.4f, 0.4f, 0.42f));
                 mat.SetFloat("_Metallic", 0.0f);
                 mat.SetFloat("_Glossiness", 0.1f);
@@ -605,7 +605,7 @@ namespace NeonArena.World
                 pole.transform.position = position + Vector3.up * (height / 2f);
                 pole.transform.localScale = new Vector3(0.15f, height / 2f, 0.15f);
 
-                Material poleMat = new Material(Shader.Find("Standard"));
+                Material poleMat = new Material(URPMaterialHelper.GetLitShader());
                 poleMat.SetColor("_Color", new Color(0.3f, 0.3f, 0.3f));
                 poleMat.SetFloat("_Metallic", 0.8f);
                 poleMat.SetFloat("_Glossiness", 0.4f);
@@ -628,7 +628,7 @@ namespace NeonArena.World
                     cable.transform.localScale = new Vector3(0.02f, cableLength / 2f, 0.02f);
                     cable.transform.localRotation = Quaternion.Euler(60, angle, 0);
 
-                    Material cableMat = new Material(Shader.Find("Standard"));
+                    Material cableMat = new Material(URPMaterialHelper.GetLitShader());
                     cableMat.SetColor("_Color", new Color(0.1f, 0.1f, 0.1f));
                     cableMat.SetFloat("_Metallic", 0.5f);
                     cableMat.SetFloat("_Glossiness", 0.3f);
@@ -662,7 +662,7 @@ namespace NeonArena.World
                 post.transform.position = position + Vector3.up * (height / 2f);
                 post.transform.localScale = new Vector3(0.12f, height / 2f, 0.12f);
 
-                Material postMat = new Material(Shader.Find("Standard"));
+                Material postMat = new Material(URPMaterialHelper.GetLitShader());
                 postMat.SetColor("_Color", new Color(0.25f, 0.25f, 0.25f));
                 postMat.SetFloat("_Metallic", 0.7f);
                 postMat.SetFloat("_Glossiness", 0.5f);
@@ -702,7 +702,7 @@ namespace NeonArena.World
                     Random.Range(80f, 100f) // Mostly horizontal
                 );
 
-                Material mat = new Material(Shader.Find("Standard"));
+                Material mat = new Material(URPMaterialHelper.GetLitShader());
                 mat.SetColor("_Color", new Color(0.5f, 0.5f, 0.5f));
                 mat.SetFloat("_Metallic", 0.9f);
                 mat.SetFloat("_Glossiness", 0.6f);
@@ -730,7 +730,7 @@ namespace NeonArena.World
                 barrier.transform.localScale = new Vector3(2f, 0.8f, 0.5f);
                 barrier.transform.rotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
 
-                Material mat = new Material(Shader.Find("Standard"));
+                Material mat = new Material(URPMaterialHelper.GetLitShader());
                 mat.SetColor("_Color", new Color(0.5f, 0.5f, 0.52f));
                 mat.SetFloat("_Metallic", 0.0f);
                 mat.SetFloat("_Glossiness", 0.2f);
@@ -747,7 +747,7 @@ namespace NeonArena.World
                     stripe.transform.localPosition = new Vector3(-0.6f + s * 0.6f, 0.45f, 0);
                     stripe.transform.localScale = new Vector3(0.25f, 0.05f, 1.1f);
 
-                    Material stripeMat = new Material(Shader.Find("Standard"));
+                    Material stripeMat = new Material(URPMaterialHelper.GetLitShader());
                     stripeMat.SetColor("_Color", Color.yellow);
                     stripeMat.EnableKeyword("_EMISSION");
                     stripeMat.SetColor("_EmissionColor", Color.yellow * 0.5f);
@@ -775,7 +775,7 @@ namespace NeonArena.World
                 );
                 dirt.transform.rotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
 
-                Material mat = new Material(Shader.Find("Standard"));
+                Material mat = new Material(URPMaterialHelper.GetLitShader());
                 mat.SetColor("_Color", new Color(0.3f, 0.25f, 0.2f)); // Brown dirt
                 mat.SetFloat("_Metallic", 0.0f);
                 mat.SetFloat("_Glossiness", 0.1f);
@@ -807,7 +807,7 @@ namespace NeonArena.World
                 );
                 graffiti.transform.rotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
 
-                Material mat = new Material(Shader.Find("Standard"));
+                Material mat = new Material(URPMaterialHelper.GetLitShader());
                 Color graffitiColor = Rendering.NeonMaterialFactory.GetCurrentThemeColor() * Random.Range(0.5f, 1.5f);
                 mat.SetColor("_Color", graffitiColor);
                 mat.EnableKeyword("_EMISSION");

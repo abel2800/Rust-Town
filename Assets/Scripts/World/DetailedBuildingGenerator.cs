@@ -18,46 +18,26 @@ namespace NeonArena.World
         
         public static void InitializeMaterials()
         {
-            // Weathered brick
-            brickMaterial = new Material(Shader.Find("Standard"));
-            brickMaterial.SetColor("_Color", new Color(0.45f, 0.32f, 0.28f));
-            brickMaterial.SetFloat("_Metallic", 0f);
-            brickMaterial.SetFloat("_Glossiness", 0.1f);
+            // Weathered brick - muted reddish-brown
+            brickMaterial = URPMaterialHelper.CreateMaterial(new Color(0.42f, 0.35f, 0.3f), 0.1f, 0f);
             
-            // Dark broken windows
-            windowMaterial = new Material(Shader.Find("Standard"));
-            windowMaterial.SetColor("_Color", new Color(0.08f, 0.1f, 0.12f));
-            windowMaterial.SetFloat("_Metallic", 0.2f);
-            windowMaterial.SetFloat("_Glossiness", 0.7f);
+            // Dark broken windows - very dark with slight blue tint
+            windowMaterial = URPMaterialHelper.CreateMaterial(new Color(0.05f, 0.06f, 0.08f), 0.6f, 0.1f);
             
-            // Old wooden door
-            doorMaterial = new Material(Shader.Find("Standard"));
-            doorMaterial.SetColor("_Color", new Color(0.28f, 0.2f, 0.14f));
-            doorMaterial.SetFloat("_Metallic", 0f);
-            doorMaterial.SetFloat("_Glossiness", 0.15f);
+            // Old wooden door - weathered brown
+            doorMaterial = URPMaterialHelper.CreateMaterial(new Color(0.3f, 0.24f, 0.18f), 0.12f, 0f);
             
-            // Damaged roof
-            roofMaterial = new Material(Shader.Find("Standard"));
-            roofMaterial.SetColor("_Color", new Color(0.22f, 0.18f, 0.16f));
-            roofMaterial.SetFloat("_Metallic", 0.1f);
-            roofMaterial.SetFloat("_Glossiness", 0.2f);
+            // Damaged roof - dark gray-brown
+            roofMaterial = URPMaterialHelper.CreateMaterial(new Color(0.25f, 0.22f, 0.2f), 0.15f, 0.05f);
             
-            // Old wood
-            woodMaterial = new Material(Shader.Find("Standard"));
-            woodMaterial.SetColor("_Color", new Color(0.32f, 0.24f, 0.16f));
-            woodMaterial.SetFloat("_Metallic", 0f);
-            woodMaterial.SetFloat("_Glossiness", 0.08f);
+            // Old wood - gray-brown weathered
+            woodMaterial = URPMaterialHelper.CreateMaterial(new Color(0.35f, 0.3f, 0.25f), 0.08f, 0f);
             
-            // Rusty metal
-            metalMaterial = new Material(Shader.Find("Standard"));
-            metalMaterial.SetColor("_Color", new Color(0.4f, 0.28f, 0.2f));
-            metalMaterial.SetFloat("_Metallic", 0.7f);
-            metalMaterial.SetFloat("_Glossiness", 0.35f);
+            // Rusty metal - dark rust color
+            metalMaterial = URPMaterialHelper.CreateMaterial(new Color(0.35f, 0.25f, 0.18f), 0.3f, 0.5f);
             
-            // Grime/dirt overlay
-            grimeMaterial = new Material(Shader.Find("Standard"));
-            grimeMaterial.SetColor("_Color", new Color(0.18f, 0.16f, 0.14f, 0.6f));
-            grimeMaterial.SetFloat("_Glossiness", 0.02f);
+            // Grime/dirt overlay - very dark
+            grimeMaterial = URPMaterialHelper.CreateMaterial(new Color(0.15f, 0.13f, 0.11f), 0.02f, 0f);
         }
         
         public static GameObject CreateDetailedHouse(Vector3 position, List<GameObject> objectList)
@@ -122,7 +102,7 @@ namespace NeonArena.World
             baseTrim.transform.localPosition = new Vector3(0, 0.15f, 0);
             baseTrim.transform.localScale = new Vector3(size.x + 0.1f, 0.3f, size.z + 0.1f);
             
-            Material trimMat = new Material(Shader.Find("Standard"));
+            Material trimMat = new Material(URPMaterialHelper.GetLitShader());
             trimMat.SetColor("_Color", new Color(0.35f, 0.32f, 0.3f));
             baseTrim.GetComponent<Renderer>().material = trimMat;
             
@@ -143,7 +123,7 @@ namespace NeonArena.World
                 cornerPiece.transform.localPosition = corner;
                 cornerPiece.transform.localScale = new Vector3(cornerSize, size.y, cornerSize);
                 
-                Material cornerMat = new Material(Shader.Find("Standard"));
+                Material cornerMat = new Material(URPMaterialHelper.GetLitShader());
                 cornerMat.SetColor("_Color", new Color(0.38f, 0.28f, 0.24f));
                 cornerPiece.GetComponent<Renderer>().material = cornerMat;
                 Destroy(cornerPiece.GetComponent<Collider>());
@@ -180,7 +160,7 @@ namespace NeonArena.World
                 hole.transform.localScale = new Vector3(Random.Range(0.8f, 1.5f), 0.2f, Random.Range(0.8f, 1.5f));
                 hole.transform.rotation = Quaternion.Euler(Random.Range(-10f, 10f), Random.Range(0, 360f), Random.Range(-10f, 10f));
                 
-                Material darkMat = new Material(Shader.Find("Standard"));
+                Material darkMat = new Material(URPMaterialHelper.GetLitShader());
                 darkMat.SetColor("_Color", new Color(0.05f, 0.05f, 0.05f));
                 hole.GetComponent<Renderer>().material = darkMat;
                 Destroy(hole.GetComponent<Collider>());
@@ -241,7 +221,7 @@ namespace NeonArena.World
             step.transform.localPosition = pos + new Vector3(0, -1f, 0.3f);
             step.transform.localScale = new Vector3(1.4f, 0.15f, 0.5f);
             
-            Material stepMat = new Material(Shader.Find("Standard"));
+            Material stepMat = new Material(URPMaterialHelper.GetLitShader());
             stepMat.SetColor("_Color", new Color(0.4f, 0.38f, 0.35f));
             step.GetComponent<Renderer>().material = stepMat;
         }
@@ -435,7 +415,7 @@ namespace NeonArena.World
                 grass.transform.localScale = new Vector3(0.05f, Random.Range(0.2f, 0.6f), 0.05f);
                 grass.transform.rotation = Quaternion.Euler(Random.Range(-10f, 10f), Random.Range(0, 360f), Random.Range(-10f, 10f));
                 
-                Material grassMat = new Material(Shader.Find("Standard"));
+                Material grassMat = new Material(URPMaterialHelper.GetLitShader());
                 grassMat.SetColor("_Color", new Color(
                     Random.Range(0.2f, 0.35f),
                     Random.Range(0.3f, 0.45f),
@@ -461,7 +441,7 @@ namespace NeonArena.World
                     );
                     vine.transform.localScale = new Vector3(0.08f, Random.Range(0.5f, 2f), 0.02f);
                     
-                    Material vineMat = new Material(Shader.Find("Standard"));
+                    Material vineMat = new Material(URPMaterialHelper.GetLitShader());
                     vineMat.SetColor("_Color", new Color(0.15f, 0.25f, 0.1f));
                     vine.GetComponent<Renderer>().material = vineMat;
                     Destroy(vine.GetComponent<Collider>());

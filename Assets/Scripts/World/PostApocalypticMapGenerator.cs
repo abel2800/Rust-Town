@@ -13,12 +13,63 @@ namespace NeonArena.World
         [SerializeField] private float townSize = 80f;
         [SerializeField] private float roadWidth = 12f;
         
+        [Header("Realistic Environment")]
+        [SerializeField] private float forestBorderWidth = 40f;
+        [SerializeField] private bool useRealisticTerrain = true;
+        [SerializeField] private bool useForestBorder = true;
+        
         [Header("Atmosphere")]
         [SerializeField] private Color sunsetColor = new Color(1f, 0.4f, 0.2f);
         [SerializeField] private Color skyColor = new Color(0.6f, 0.25f, 0.15f);
-        [SerializeField] private float fogDensity = 0.02f;
+        [SerializeField] private float fogDensity = 0.015f;
         
         private List<GameObject> generatedObjects = new List<GameObject>();
+        
+        [Header("Auto Generate")]
+        [SerializeField] private bool generateOnStart = true;
+        [SerializeField] private KeyCode regenerateKey = KeyCode.G;
+        
+        [Header("Screen Settings")]
+        [SerializeField] private bool startFullscreen = true;
+        
+        private void Start()
+        {
+            // Set fullscreen mode
+            if (startFullscreen)
+            {
+                Screen.fullScreen = true;
+                Screen.fullScreenMode = FullScreenMode.FullScreenWindow;
+            }
+            
+            if (generateOnStart)
+            {
+                GenerateMap();
+            }
+        }
+        
+        private void Update()
+        {
+            // Press G to regenerate map
+            if (Input.GetKeyDown(regenerateKey))
+            {
+                GenerateMap();
+            }
+            
+            // Press F11 to toggle fullscreen
+            if (Input.GetKeyDown(KeyCode.F11))
+            {
+                Screen.fullScreen = !Screen.fullScreen;
+            }
+            
+            // Press Escape to exit fullscreen (or quit)
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                if (Screen.fullScreen)
+                {
+                    Screen.fullScreen = false;
+                }
+            }
+        }
         
         // Materials
         private Material asphaltMaterial;
@@ -34,8 +85,22 @@ namespace NeonArena.World
             CreateMaterials();
             DetailedBuildingGenerator.InitializeMaterials();
             
-            // Generate environment with DETAILED components
-            GenerateGround();
+            // Generate REALISTIC environment
+            if (useRealisticTerrain)
+            {
+                // Use new realistic terrain system with proper texturing
+                RealisticTerrainGenerator.CreateRealisticGround(townSize, generatedObjects, true);
+            }
+            else
+            {
+                GenerateGround();
+            }
+            
+            // Create realistic forest border around the map
+            if (useForestBorder)
+            {
+                ForestBorderGenerator.CreateForestBorder(townSize, forestBorderWidth, generatedObjects, true);
+            }
             
             // Use detailed road generator
             DetailedRoadGenerator.CreateDetailedRoad(Vector3.zero, roadWidth, townSize * 1.5f, generatedObjects);
@@ -55,16 +120,17 @@ namespace NeonArena.World
             GenerateDebrisAndClutter();
             GenerateUtilityPoles();
             GenerateFog();
-            SetupSundownLighting();
-            SetupAtmosphere();
+            SetupRealisticLighting();
+            SetupRealisticAtmosphere();
             
-            // Add atmosphere effects (flickering lights, dust, embers)
-            if (GetComponent<AtmosphereEffects>() == null)
+            // Add enhanced atmosphere effects (flickering lights, dust, embers, wind)
+            AtmosphereEffects atmoEffects = GetComponent<AtmosphereEffects>();
+            if (atmoEffects == null)
             {
-                gameObject.AddComponent<AtmosphereEffects>();
+                atmoEffects = gameObject.AddComponent<AtmosphereEffects>();
             }
             
-            Debug.Log($"🌅 Post-Apocalyptic 'Sundown Desolation' map generated! Objects: {generatedObjects.Count}");
+            Debug.Log($"🌅 Realistic Post-Apocalyptic 'Sundown Desolation' map generated! Objects: {generatedObjects.Count}");
         }
         
         private void GenerateDetailedSidewalks()
@@ -100,7 +166,7 @@ namespace NeonArena.World
                     );
                     crack.transform.rotation = Quaternion.Euler(0, Random.Range(-30f, 30f), 0);
                     
-                    Material crackMat = new Material(Shader.Find("Standard"));
+                    Material crackMat = new Material(URPMaterialHelper.GetLitShader());
                     crackMat.SetColor("_Color", new Color(0.1f, 0.1f, 0.1f));
                     crack.GetComponent<Renderer>().material = crackMat;
                     Destroy(crack.GetComponent<Collider>());
@@ -115,7 +181,7 @@ namespace NeonArena.World
                     joint.transform.position = new Vector3(xPos, 0.105f, i * 4f);
                     joint.transform.localScale = new Vector3(sidewalkWidth + 0.1f, 0.008f, 0.05f);
                     
-                    Material jointMat = new Material(Shader.Find("Standard"));
+                    Material jointMat = new Material(URPMaterialHelper.GetLitShader());
                     jointMat.SetColor("_Color", new Color(0.25f, 0.24f, 0.22f));
                     joint.GetComponent<Renderer>().material = jointMat;
                     Destroy(joint.GetComponent<Collider>());
@@ -156,40 +222,23 @@ namespace NeonArena.World
         private void CreateMaterials()
         {
             // Cracked asphalt
-            asphaltMaterial = new Material(Shader.Find("Standard"));
-            asphaltMaterial.SetColor("_Color", new Color(0.15f, 0.15f, 0.15f));
-            asphaltMaterial.SetFloat("_Metallic", 0f);
-            asphaltMaterial.SetFloat("_Glossiness", 0.1f);
+            asphaltMaterial = URPMaterialHelper.CreateMaterial(new Color(0.15f, 0.15f, 0.15f), 0.1f, 0f);
             
             // Dirty concrete
-            concreteMaterial = new Material(Shader.Find("Standard"));
-            concreteMaterial.SetColor("_Color", new Color(0.4f, 0.38f, 0.35f));
-            concreteMaterial.SetFloat("_Metallic", 0f);
-            concreteMaterial.SetFloat("_Glossiness", 0.15f);
+            concreteMaterial = URPMaterialHelper.CreateMaterial(new Color(0.4f, 0.38f, 0.35f), 0.15f, 0f);
             
             // Rusty metal
-            rustMaterial = new Material(Shader.Find("Standard"));
-            rustMaterial.SetColor("_Color", new Color(0.45f, 0.25f, 0.15f));
-            rustMaterial.SetFloat("_Metallic", 0.6f);
-            rustMaterial.SetFloat("_Glossiness", 0.3f);
+            rustMaterial = URPMaterialHelper.CreateMaterial(new Color(0.45f, 0.25f, 0.15f), 0.3f, 0.6f);
             
             // Weathered wood
-            woodMaterial = new Material(Shader.Find("Standard"));
-            woodMaterial.SetColor("_Color", new Color(0.35f, 0.25f, 0.18f));
-            woodMaterial.SetFloat("_Metallic", 0f);
-            woodMaterial.SetFloat("_Glossiness", 0.1f);
+            woodMaterial = URPMaterialHelper.CreateMaterial(new Color(0.35f, 0.25f, 0.18f), 0.1f, 0f);
             
             // Dirty glass
-            glassMaterial = new Material(Shader.Find("Standard"));
-            glassMaterial.SetColor("_Color", new Color(0.3f, 0.35f, 0.4f, 0.5f));
-            glassMaterial.SetFloat("_Metallic", 0.1f);
-            glassMaterial.SetFloat("_Glossiness", 0.8f);
+            glassMaterial = URPMaterialHelper.CreateMaterial(new Color(0.3f, 0.35f, 0.4f, 0.5f), 0.8f, 0.1f);
             
-            // Fire glow
-            fireMaterial = new Material(Shader.Find("Standard"));
-            fireMaterial.SetColor("_Color", new Color(1f, 0.5f, 0.1f));
-            fireMaterial.EnableKeyword("_EMISSION");
-            fireMaterial.SetColor("_EmissionColor", new Color(2f, 1f, 0.3f) * 3f);
+            // Fire glow - much dimmer
+            fireMaterial = URPMaterialHelper.CreateMaterial(new Color(0.7f, 0.35f, 0.1f), 0.3f, 0f);
+            URPMaterialHelper.SetEmission(fireMaterial, new Color(0.8f, 0.4f, 0.15f) * 0.5f);
         }
         
         private void GenerateGround()
@@ -200,7 +249,7 @@ namespace NeonArena.World
             ground.transform.position = new Vector3(0, -0.5f, 0);
             ground.transform.localScale = new Vector3(townSize * 2, 1f, townSize * 2);
             
-            Material groundMat = new Material(Shader.Find("Standard"));
+            Material groundMat = new Material(URPMaterialHelper.GetLitShader());
             groundMat.SetColor("_Color", new Color(0.35f, 0.3f, 0.25f));
             groundMat.SetFloat("_Glossiness", 0.05f);
             ground.GetComponent<Renderer>().material = groundMat;
@@ -226,7 +275,7 @@ namespace NeonArena.World
                 );
                 dirt.transform.rotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
                 
-                Material dirtMat = new Material(Shader.Find("Standard"));
+                Material dirtMat = new Material(URPMaterialHelper.GetLitShader());
                 dirtMat.SetColor("_Color", new Color(
                     0.3f + Random.Range(-0.05f, 0.05f),
                     0.25f + Random.Range(-0.05f, 0.05f),
@@ -258,7 +307,7 @@ namespace NeonArena.World
                 line.transform.position = new Vector3(0, 0.03f, i * 5f);
                 line.transform.localScale = new Vector3(0.15f, 0.01f, 2f);
                 
-                Material lineMat = new Material(Shader.Find("Standard"));
+                Material lineMat = new Material(URPMaterialHelper.GetLitShader());
                 lineMat.SetColor("_Color", new Color(0.6f, 0.55f, 0.2f, 0.5f));
                 line.GetComponent<Renderer>().material = lineMat;
                 Destroy(line.GetComponent<Collider>());
@@ -284,7 +333,7 @@ namespace NeonArena.World
                     Random.Range(0.3f, 1f)
                 );
                 
-                Material potholeMat = new Material(Shader.Find("Standard"));
+                Material potholeMat = new Material(URPMaterialHelper.GetLitShader());
                 potholeMat.SetColor("_Color", new Color(0.08f, 0.08f, 0.08f));
                 pothole.GetComponent<Renderer>().material = potholeMat;
                 Destroy(pothole.GetComponent<Collider>());
@@ -323,7 +372,7 @@ namespace NeonArena.World
                 );
                 crack.transform.rotation = Quaternion.Euler(0, Random.Range(-30f, 30f), 0);
                 
-                Material crackMat = new Material(Shader.Find("Standard"));
+                Material crackMat = new Material(URPMaterialHelper.GetLitShader());
                 crackMat.SetColor("_Color", new Color(0.15f, 0.14f, 0.13f));
                 crack.GetComponent<Renderer>().material = crackMat;
                 Destroy(crack.GetComponent<Collider>());
@@ -391,7 +440,7 @@ namespace NeonArena.World
                     Random.Range(0.5f, 1.5f)
                 );
                 
-                Material oilMat = new Material(Shader.Find("Standard"));
+                Material oilMat = new Material(URPMaterialHelper.GetLitShader());
                 oilMat.SetColor("_Color", new Color(0.05f, 0.05f, 0.08f));
                 oilMat.SetFloat("_Metallic", 0.8f);
                 oilMat.SetFloat("_Glossiness", 0.9f);
@@ -418,7 +467,7 @@ namespace NeonArena.World
             top.transform.position = position + Vector3.up * 1.6f;
             top.transform.localScale = new Vector3(0.65f, 0.2f, 0.45f);
             
-            Material topMat = new Material(Shader.Find("Standard"));
+            Material topMat = new Material(URPMaterialHelper.GetLitShader());
             topMat.SetColor("_Color", new Color(0.6f, 0.1f, 0.1f));
             top.GetComponent<Renderer>().material = topMat;
             generatedObjects.Add(top);
@@ -430,7 +479,7 @@ namespace NeonArena.World
             hose.transform.localScale = new Vector3(0.05f, 0.5f, 0.05f);
             hose.transform.rotation = Quaternion.Euler(0, 0, 60);
             
-            Material hoseMat = new Material(Shader.Find("Standard"));
+            Material hoseMat = new Material(URPMaterialHelper.GetLitShader());
             hoseMat.SetColor("_Color", new Color(0.1f, 0.1f, 0.1f));
             hose.GetComponent<Renderer>().material = hoseMat;
             Destroy(hose.GetComponent<Collider>());
@@ -468,7 +517,7 @@ namespace NeonArena.World
             awning.transform.localScale = new Vector3(width + 0.5f, 0.1f, 1.5f);
             awning.transform.rotation = Quaternion.Euler(position.x > 0 ? 10 : -10, 0, 0);
             
-            Material awningMat = new Material(Shader.Find("Standard"));
+            Material awningMat = new Material(URPMaterialHelper.GetLitShader());
             awningMat.SetColor("_Color", new Color(
                 Random.Range(0.3f, 0.5f),
                 Random.Range(0.2f, 0.35f),
@@ -490,7 +539,7 @@ namespace NeonArena.World
                 window.transform.position = new Vector3(windowX, 2f, windowZ);
                 window.transform.localScale = new Vector3(1.5f, 2f, 0.1f);
                 
-                Material windowMat = new Material(Shader.Find("Standard"));
+                Material windowMat = new Material(URPMaterialHelper.GetLitShader());
                 windowMat.SetColor("_Color", new Color(0.1f, 0.1f, 0.12f));
                 window.GetComponent<Renderer>().material = windowMat;
                 generatedObjects.Add(window);
@@ -524,7 +573,7 @@ namespace NeonArena.World
             building.transform.position = position + Vector3.up * (size.y / 2);
             building.transform.localScale = size;
             
-            Material buildingMat = new Material(Shader.Find("Standard"));
+            Material buildingMat = new Material(URPMaterialHelper.GetLitShader());
             buildingMat.SetColor("_Color", new Color(
                 0.4f + Random.Range(-0.1f, 0.1f),
                 0.38f + Random.Range(-0.1f, 0.1f),
@@ -571,7 +620,7 @@ namespace NeonArena.World
             roof.transform.localScale = new Vector3(width + 1f, 1f, depth + 1f);
             roof.transform.rotation = Quaternion.Euler(0, 0, Random.Range(-3f, 3f));
             
-            Material roofMat = new Material(Shader.Find("Standard"));
+            Material roofMat = new Material(URPMaterialHelper.GetLitShader());
             roofMat.SetColor("_Color", new Color(0.25f, 0.2f, 0.18f));
             roof.GetComponent<Renderer>().material = roofMat;
             generatedObjects.Add(roof);
@@ -591,7 +640,7 @@ namespace NeonArena.World
                 );
                 grass.transform.localScale = new Vector3(0.1f, Random.Range(0.4f, 0.8f), 0.1f);
                 
-                Material grassMat = new Material(Shader.Find("Standard"));
+                Material grassMat = new Material(URPMaterialHelper.GetLitShader());
                 grassMat.SetColor("_Color", new Color(0.3f, 0.35f, 0.2f));
                 grass.GetComponent<Renderer>().material = grassMat;
                 Destroy(grass.GetComponent<Collider>());
@@ -688,7 +737,7 @@ namespace NeonArena.World
                     wheel.transform.localRotation = Quaternion.Euler(0, 0, 90);
                     wheel.transform.localScale = new Vector3(0.5f, 0.15f, 0.5f);
                     
-                    Material wheelMat = new Material(Shader.Find("Standard"));
+                    Material wheelMat = new Material(URPMaterialHelper.GetLitShader());
                     wheelMat.SetColor("_Color", new Color(0.1f, 0.1f, 0.1f));
                     wheel.GetComponent<Renderer>().material = wheelMat;
                 }
@@ -756,7 +805,7 @@ namespace NeonArena.World
             dumpster.transform.localScale = new Vector3(2f, 1.6f, 1.5f);
             dumpster.transform.rotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
             
-            Material dumpsterMat = new Material(Shader.Find("Standard"));
+            Material dumpsterMat = new Material(URPMaterialHelper.GetLitShader());
             dumpsterMat.SetColor("_Color", new Color(0.2f, 0.35f, 0.2f));
             dumpsterMat.SetFloat("_Metallic", 0.7f);
             dumpster.GetComponent<Renderer>().material = dumpsterMat;
@@ -776,7 +825,7 @@ namespace NeonArena.World
                 trash.transform.localScale = Vector3.one * Random.Range(0.1f, 0.4f);
                 trash.transform.rotation = Random.rotation;
                 
-                Material trashMat = new Material(Shader.Find("Standard"));
+                Material trashMat = new Material(URPMaterialHelper.GetLitShader());
                 trashMat.SetColor("_Color", new Color(
                     Random.Range(0.2f, 0.5f),
                     Random.Range(0.2f, 0.4f),
@@ -817,45 +866,31 @@ namespace NeonArena.World
             barrel.GetComponent<Renderer>().material = rustMaterial;
             generatedObjects.Add(barrel);
             
-            // Fire glow inside
+            // Fire glow inside - smaller, less intense
             GameObject fire = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             fire.name = "Fire";
-            fire.transform.position = position + Vector3.up * 0.9f;
-            fire.transform.localScale = new Vector3(0.5f, 0.6f, 0.5f);
-            fire.GetComponent<Renderer>().material = fireMaterial;
+            fire.transform.position = position + Vector3.up * 0.85f;
+            fire.transform.localScale = new Vector3(0.35f, 0.4f, 0.35f);
+            
+            // Dimmer fire material
+            Material dimFireMat = URPMaterialHelper.CreateMaterial(new Color(0.8f, 0.4f, 0.1f), 0.3f, 0f);
+            URPMaterialHelper.SetEmission(dimFireMat, new Color(1f, 0.5f, 0.15f) * 0.5f);
+            fire.GetComponent<Renderer>().material = dimFireMat;
             Destroy(fire.GetComponent<Collider>());
             generatedObjects.Add(fire);
             
-            // Fire light
+            // Very subtle fire light - much dimmer
             GameObject lightObj = new GameObject("FireLight");
             lightObj.transform.position = position + Vector3.up * 1.2f;
             Light fireLight = lightObj.AddComponent<Light>();
             fireLight.type = LightType.Point;
-            fireLight.color = new Color(1f, 0.6f, 0.2f);
-            fireLight.intensity = 2f;
-            fireLight.range = 8f;
-            fireLight.shadows = LightShadows.Soft;
+            fireLight.color = new Color(1f, 0.7f, 0.4f);
+            fireLight.intensity = 0.3f;  // Much dimmer
+            fireLight.range = 3f;  // Smaller range
+            fireLight.shadows = LightShadows.None;
             generatedObjects.Add(lightObj);
             
-            // Smoke effect (simple)
-            for (int i = 0; i < 3; i++)
-            {
-                GameObject smoke = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                smoke.name = "Smoke";
-                smoke.transform.position = position + new Vector3(
-                    Random.Range(-0.2f, 0.2f),
-                    1.2f + i * 0.5f,
-                    Random.Range(-0.2f, 0.2f)
-                );
-                smoke.transform.localScale = Vector3.one * (0.3f + i * 0.2f);
-                
-                Material smokeMat = new Material(Shader.Find("Standard"));
-                smokeMat.SetColor("_Color", new Color(0.2f, 0.2f, 0.2f, 0.3f));
-                smoke.GetComponent<Renderer>().material = smokeMat;
-                Destroy(smoke.GetComponent<Collider>());
-                
-                generatedObjects.Add(smoke);
-            }
+            // Skip smoke effect - causes rendering issues in URP
         }
         
         private void GenerateDebrisAndClutter()
@@ -881,7 +916,7 @@ namespace NeonArena.World
                 );
                 debris.transform.rotation = Random.rotation;
                 
-                Material debrisMat = new Material(Shader.Find("Standard"));
+                Material debrisMat = new Material(URPMaterialHelper.GetLitShader());
                 debrisMat.SetColor("_Color", new Color(
                     Random.Range(0.25f, 0.45f),
                     Random.Range(0.22f, 0.4f),
@@ -923,7 +958,7 @@ namespace NeonArena.World
             basket.transform.localPosition = new Vector3(0, 0.5f, 0);
             basket.transform.localScale = new Vector3(0.6f, 0.4f, 0.8f);
             
-            Material cartMat = new Material(Shader.Find("Standard"));
+            Material cartMat = new Material(URPMaterialHelper.GetLitShader());
             cartMat.SetColor("_Color", new Color(0.5f, 0.5f, 0.5f));
             cartMat.SetFloat("_Metallic", 0.8f);
             basket.GetComponent<Renderer>().material = cartMat;
@@ -982,7 +1017,7 @@ namespace NeonArena.World
                     wire.transform.LookAt(nextPole + Vector3.up * 9f);
                     wire.transform.Rotate(90, 0, 0);
                     
-                    Material wireMat = new Material(Shader.Find("Standard"));
+                    Material wireMat = new Material(URPMaterialHelper.GetLitShader());
                     wireMat.SetColor("_Color", new Color(0.1f, 0.1f, 0.1f));
                     wire.GetComponent<Renderer>().material = wireMat;
                     Destroy(wire.GetComponent<Collider>());
@@ -994,34 +1029,8 @@ namespace NeonArena.World
         
         private void GenerateFog()
         {
-            // Low-lying fog patches
-            for (int i = 0; i < 15; i++)
-            {
-                Vector3 pos = new Vector3(
-                    Random.Range(-townSize * 0.7f, townSize * 0.7f),
-                    Random.Range(0.5f, 2f),
-                    Random.Range(-townSize * 0.7f, townSize * 0.7f)
-                );
-                
-                GameObject fogPatch = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                fogPatch.name = "FogPatch";
-                fogPatch.transform.position = pos;
-                fogPatch.transform.localScale = new Vector3(
-                    Random.Range(5f, 15f),
-                    Random.Range(1f, 3f),
-                    Random.Range(5f, 15f)
-                );
-                
-                Material fogMat = new Material(Shader.Find("Standard"));
-                fogMat.SetColor("_Color", new Color(0.5f, 0.45f, 0.4f, 0.15f));
-                fogMat.SetFloat("_Mode", 3); // Transparent
-                fogMat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-                fogMat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-                fogPatch.GetComponent<Renderer>().material = fogMat;
-                Destroy(fogPatch.GetComponent<Collider>());
-                
-                generatedObjects.Add(fogPatch);
-            }
+            // Disabled - URP doesn't support these transparent cubes correctly
+            // Using Unity's built-in fog instead via RenderSettings
         }
         
         private void SetupSundownLighting()
@@ -1048,6 +1057,39 @@ namespace NeonArena.World
             generatedObjects.Add(ambientLight);
         }
         
+        private void SetupRealisticLighting()
+        {
+            // Main sun - subtle, not too intense
+            GameObject sunLight = new GameObject("RealisticSun");
+            Light sun = sunLight.AddComponent<Light>();
+            sun.type = LightType.Directional;
+            sun.color = new Color(1f, 0.9f, 0.8f);  // Warm white, not orange
+            sun.intensity = 0.8f;  // Reduced intensity
+            sun.shadows = LightShadows.Soft;
+            sun.shadowStrength = 0.6f;
+            sun.shadowBias = 0.02f;
+            sun.shadowNormalBias = 0.3f;
+            sunLight.transform.rotation = Quaternion.Euler(30f, -45f, 0);  // Higher angle
+            generatedObjects.Add(sunLight);
+            
+            // Subtle fill light
+            GameObject skyFill = new GameObject("SkyFillLight");
+            Light skyLight = skyFill.AddComponent<Light>();
+            skyLight.type = LightType.Directional;
+            skyLight.color = new Color(0.7f, 0.75f, 0.8f);  // Neutral
+            skyLight.intensity = 0.2f;
+            skyLight.shadows = LightShadows.None;
+            skyFill.transform.rotation = Quaternion.Euler(60f, 135f, 0);
+            generatedObjects.Add(skyFill);
+            
+            // No extra bounce or rim lights - keep it simple
+        }
+        
+        private void CreateForestAmbientLights()
+        {
+            // Disabled - no extra point lights to avoid color bleeding
+        }
+        
         private void SetupAtmosphere()
         {
             // Skybox color (sunset) - Camera may not exist yet, will be set later
@@ -1068,6 +1110,87 @@ namespace NeonArena.World
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
             RenderSettings.ambientLight = new Color(0.4f, 0.3f, 0.25f);
             RenderSettings.ambientIntensity = 0.8f;
+        }
+        
+        private void SetupRealisticAtmosphere()
+        {
+            // Camera setup - sunset sky color
+            Camera cam = Camera.main;
+            if (cam != null)
+            {
+                // Soft blue-gray sky (sunset will be from skybox if you add one)
+                cam.backgroundColor = new Color(0.5f, 0.55f, 0.65f);
+                cam.clearFlags = CameraClearFlags.SolidColor;
+            }
+            
+            // Subtle fog for depth
+            RenderSettings.fog = true;
+            RenderSettings.fogMode = FogMode.ExponentialSquared;
+            RenderSettings.fogColor = new Color(0.5f, 0.5f, 0.52f);  // Neutral gray fog
+            RenderSettings.fogDensity = 0.008f;  // Light fog
+            
+            // Neutral ambient lighting - won't color objects
+            RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
+            RenderSettings.ambientLight = new Color(0.5f, 0.5f, 0.5f);  // Neutral gray
+            RenderSettings.ambientIntensity = 1.0f;
+            
+            // Minimal reflections
+            RenderSettings.reflectionIntensity = 0.2f;
+            
+            // Create distant silhouettes only
+            CreateDistantSilhouettes();
+        }
+        
+        private void CreateAtmosphericHaze()
+        {
+            // Disabled - URP doesn't support transparent materials the same way
+            // The built-in fog settings handle atmosphere instead
+            
+            // Just enhance the Unity fog settings
+            RenderSettings.fog = true;
+            RenderSettings.fogMode = FogMode.ExponentialSquared;
+            RenderSettings.fogColor = new Color(0.5f, 0.42f, 0.35f);  // Warm dusty color
+            RenderSettings.fogDensity = 0.012f;
+        }
+        
+        private void CreateDistantSilhouettes()
+        {
+            // Create distant hill/mountain silhouettes around the horizon - much farther away
+            float horizonDistance = townSize + forestBorderWidth + 80f;  // Push farther back
+            int silhouetteCount = 16;
+            
+            for (int i = 0; i < silhouetteCount; i++)
+            {
+                float angle = (i / (float)silhouetteCount) * 360f * Mathf.Deg2Rad;
+                float distance = horizonDistance + Random.Range(0f, 40f);
+                
+                Vector3 pos = new Vector3(
+                    Mathf.Cos(angle) * distance,
+                    -5f,  // Start below ground for smooth horizon line
+                    Mathf.Sin(angle) * distance
+                );
+                
+                // Create smoother hill silhouette
+                GameObject hill = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                hill.name = "DistantHill";
+                float hillHeight = Random.Range(20f, 50f);
+                float hillWidth = Random.Range(60f, 120f);
+                
+                hill.transform.position = pos + Vector3.up * (hillHeight * 0.3f);
+                hill.transform.localScale = new Vector3(hillWidth, hillHeight, Random.Range(30f, 60f));
+                hill.transform.rotation = Quaternion.Euler(0, angle * Mathf.Rad2Deg + 90f, 0);
+                
+                // Very dark silhouette - like distant mountains at sunset
+                float darkness = 0.08f + (i % 3) * 0.03f;
+                Material hillMat = URPMaterialHelper.CreateMaterial(
+                    new Color(darkness, darkness * 0.9f, darkness * 0.85f), 
+                    0f, 0f
+                );
+                hill.GetComponent<Renderer>().material = hillMat;
+                Destroy(hill.GetComponent<Collider>());  // No collision needed
+                
+                generatedObjects.Add(hill);
+            }
         }
         
         // Called after camera is created to set up camera-specific settings

@@ -78,42 +78,8 @@ namespace NeonArena.AI
                 enemyMaterial = enemyRenderer.material;
             }
             
-            // Try to get Animator component (for FBX models)
-            animator = GetComponentInChildren<Animator>();
-            if (animator != null)
-            {
-                // Enable the animator and let it play
-                animator.enabled = true;
-                animator.speed = 1.2f; // Slightly faster animation
-                animator.applyRootMotion = false; // We control movement
-                
-                // Try to play running/walking animation
-                if (animator.HasState(0, Animator.StringToHash("Run")))
-                {
-                    animator.Play("Run");
-                }
-                else if (animator.HasState(0, Animator.StringToHash("Walk")))
-                {
-                    animator.Play("Walk");
-                }
-                else
-                {
-                    // Just play whatever default animation exists
-                    animator.Play(0);
-                }
-                
-                Debug.Log("✅ Animator found and started on zombie!");
-            }
-            else
-            {
-                Debug.Log("⚠️ No Animator on zombie - using procedural animation");
-            }
-            
-            // Find limbs for procedural animation (placeholder enemies)
-            leftArm = transform.Find("LeftArm");
-            rightArm = transform.Find("RightArm");
-            leftLeg = transform.Find("LeftLeg");
-            rightLeg = transform.Find("RightLeg");
+            // Setup animator with proper animations
+            SetupAnimator();
             
             // Make sure zombie starts facing forward
             transform.rotation = Quaternion.identity;
@@ -134,6 +100,116 @@ namespace NeonArena.AI
             {
                 playerTransform = playerObj.transform;
             }
+        }
+        
+        private void SetupAnimator()
+        {
+            // Get or add Animator component
+            animator = GetComponentInChildren<Animator>();
+            if (animator == null)
+            {
+                // Try to find SkinnedMeshRenderer and add animator to same object
+                SkinnedMeshRenderer smr = GetComponentInChildren<SkinnedMeshRenderer>();
+                if (smr != null)
+                {
+                    animator = smr.gameObject.AddComponent<Animator>();
+                }
+                else
+                {
+                    animator = gameObject.AddComponent<Animator>();
+                }
+            }
+            
+            if (animator == null)
+            {
+                Debug.LogWarning("Could not create Animator!");
+                return;
+            }
+            
+            // Try to load the animator controller
+            RuntimeAnimatorController controller = Resources.Load<RuntimeAnimatorController>("Enemies/Zombie/ZombieAnimator");
+            
+            if (controller != null)
+            {
+                animator.runtimeAnimatorController = controller;
+                animator.applyRootMotion = false;
+                animator.enabled = true;
+                
+                // Force play Run animation
+                animator.Play("Run", 0, 0f);
+                Debug.Log("✅ Animator Controller loaded and Run animation started!");
+            }
+            else
+            {
+                Debug.LogWarning("⚠️ ZombieAnimator.controller not found - trying legacy animation");
+                
+                // Try legacy Animation component approach
+                SetupLegacyAnimation();
+            }
+        }
+        
+        private void SetupLegacyAnimation()
+        {
+            // Load animation clips from Scary Zombie Pack (lowercase names)
+            AnimationClip runClip = LoadAnimationClip("Enemies/Zombie/zombie run");
+            AnimationClip attackClip = LoadAnimationClip("Enemies/Zombie/zombie attack");
+            AnimationClip deathClip = LoadAnimationClip("Enemies/Zombie/zombie death");
+            
+            if (runClip != null)
+            {
+                // Add legacy Animation component
+                Animation anim = GetComponentInChildren<Animation>();
+                if (anim == null)
+                {
+                    SkinnedMeshRenderer smr = GetComponentInChildren<SkinnedMeshRenderer>();
+                    if (smr != null)
+                    {
+                        anim = smr.gameObject.AddComponent<Animation>();
+                    }
+                }
+                
+                if (anim != null)
+                {
+                    // Make clips legacy
+                    runClip.legacy = true;
+                    if (attackClip != null) attackClip.legacy = true;
+                    if (deathClip != null) deathClip.legacy = true;
+                    
+                    anim.AddClip(runClip, "Run");
+                    if (attackClip != null) anim.AddClip(attackClip, "Attack");
+                    if (deathClip != null) anim.AddClip(deathClip, "Death");
+                    
+                    anim.wrapMode = WrapMode.Loop;
+                    anim.Play("Run");
+                    
+                    Debug.Log("✅ Legacy animations loaded!");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("⚠️ Could not load animation clips!");
+            }
+        }
+        
+        private AnimationClip LoadAnimationClip(string path)
+        {
+            // Try to load animation clip
+            AnimationClip clip = Resources.Load<AnimationClip>(path);
+            if (clip != null) return clip;
+            
+            // Try loading from FBX (the clip is embedded)
+            GameObject fbx = Resources.Load<GameObject>(path);
+            if (fbx != null)
+            {
+                // Get all animation clips from the FBX
+                Animation anim = fbx.GetComponent<Animation>();
+                if (anim != null && anim.clip != null)
+                {
+                    return anim.clip;
+                }
+            }
+            
+            return null;
         }
 
         private void Update()
@@ -401,12 +477,7 @@ namespace NeonArena.AI
             // Trigger attack animation
             if (animator != null)
             {
-                // Try different attack trigger names
                 animator.SetTrigger("Attack");
-                animator.SetBool("IsAttacking", true);
-                
-                // Reset attacking state after animation
-                StartCoroutine(ResetAttackAnimation());
             }
 
             // Deal damage to player
@@ -415,15 +486,6 @@ namespace NeonArena.AI
             {
                 player.TakeDamage(attackDamage);
                 Debug.Log($"🧟 Enemy dealt {attackDamage} damage to player");
-            }
-        }
-        
-        private global::System.Collections.IEnumerator ResetAttackAnimation()
-        {
-            yield return new WaitForSeconds(0.8f);
-            if (animator != null && !isDying)
-            {
-                animator.SetBool("IsAttacking", false);
             }
         }
 
@@ -462,6 +524,7 @@ namespace NeonArena.AI
             if (animator != null)
             {
                 animator.SetTrigger("Die");
+                animator.Play("Death", 0, 0f);
             }
             
             // Add score immediately
@@ -475,30 +538,13 @@ namespace NeonArena.AI
 
         private void UpdateVisuals()
         {
-            if (enemyMaterial == null) return;
-
-            // Hit flash effect
+            // Don't modify zombie materials - keep original colors/textures
+            // Only handle hit flash if explicitly enabled
+            
             if (hitFlashTimer > 0f)
             {
                 hitFlashTimer -= Time.deltaTime;
-                float flashIntensity = hitFlashTimer / 0.1f;
-                
-                Color emissionColor = new Color(2f, 0.5f, 0.5f) * flashIntensity * 3f;
-                enemyMaterial.SetColor("_EmissionColor", emissionColor);
-            }
-            else
-            {
-                // Reset to default glow
-                Color defaultGlow = Rendering.NeonMaterialFactory.GetCurrentThemeColor() * 1.5f;
-                enemyMaterial.SetColor("_EmissionColor", defaultGlow);
-            }
-
-            // Pulse effect based on state
-            if (currentState == AIState.Attacking)
-            {
-                float pulse = Mathf.PingPong(Time.time * 3f, 1f);
-                Color attackGlow = Color.red * (1f + pulse);
-                enemyMaterial.SetColor("_EmissionColor", attackGlow);
+                // Visual feedback handled by animator or UI instead
             }
         }
 
